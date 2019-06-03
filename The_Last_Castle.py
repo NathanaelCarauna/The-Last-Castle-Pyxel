@@ -101,10 +101,7 @@ class Lua:
 
     def update(self):
         self.posicao_x -= self.velocidade
-        #if self.posicao_y > 5:
-        #    self.posicao_y -= self.velocidade
-        #elif self.posicao_y <=5:
-        #    self.posicao_y += self.velocidade
+
     
     def draw(self):
         pyxel.blt(self.posicao_x,self.posicao_y,0,48,32,16,16,0)
@@ -148,15 +145,17 @@ class Tiros:
         self.posicao_x = x
         self.posicao_y = y
         self.tipo_de_projetil = i
-        self.velocidade = 1.5
+        self.velocidade_x = 1.5
+        #self.velocidade_y = 
         self.cadencia = 1
     
     def update(self):
-        self.posicao_x += self.velocidade
+        self.posicao_x += self.velocidade_x
 
     def draw(self):
         if self.tipo_de_projetil == 0:
-            pyxel.blt(self.posicao_x,self.posicao_y,0,64,2,2,1,7)
+            pyxel.blt(self.posicao_x,self.posicao_y,0,64,2,2,3,7)
+
 
 #INIMIGOS
 class Inimigo:
@@ -165,6 +164,7 @@ class Inimigo:
         self.posicao_x = x
         self.posicao_y = random.randint(99,102)
         self.velocidade = -1*(random.randint(1,8)/10)
+        self.life = 2
     
     def update(self):
         self.posicao_x += self.velocidade
@@ -278,6 +278,7 @@ class Jogo:
         #ATUALIZAÇÃO QUANDO O JOGO INICIA
         elif self.estado_de_jogo == jogando:
 
+
             #INCREMENTAR CONTADOR
             self.contador_para_waves += 1
 
@@ -286,20 +287,28 @@ class Jogo:
                 self.inimigos.append(Inimigo(0))
             for inimigo in self.inimigos:
                 inimigo.update()
+                
+                #DANO AO CASTELO
                 if inimigo.posicao_x <= 30:
                     self.indice_de_vidas -= 1
                     self.inimigos.remove(inimigo)
                     self.vidas[self.indice_de_vidas].recebeu_dano = True
             
-            #VERIFICADOR DE VIDA
+            #VERIFICADOR DE VIDA DO CASTELO
             if self.indice_de_vidas == (len(self.vidas)*-1):
                 self.estado_de_jogo = game_over
 
             #TIROS
             if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON):
-                self.tiros.append(Tiros(0))
+                self.tiros.append(Tiros(0,30,105))
             for tiro in self.tiros:
                 tiro.update()
+
+                #DANO AOS INIMIGOS
+                for inimigo in self.inimigos:
+                    if tiro.posicao_x >= inimigo.posicao_x:
+                        self.inimigos.remove(inimigo)
+                        self.tiros.remove(tiro)
 
             #MOVER E GERAR ESTRELAS
             for i in range(11):
@@ -331,8 +340,11 @@ class Jogo:
                 if nuvem.posicao_x<-30:
                     self.nuvens.remove(nuvem)
             
-            
-            
+        if self.estado_de_jogo == game_over:
+            if pyxel.btnp(pyxel.KEY_ENTER):
+                self.estado_de_jogo = inicio_de_jogo
+            if pyxel.btnp(pyxel.KEY_Q):
+                pyxel.quit()
              
     def draw(self):
         #TIRAR RASTRO
@@ -345,7 +357,7 @@ class Jogo:
             pyxel.text(10,105,"Pressione 'Q' para sair", 7)
 
         #QUANDO O JOGO INICIAR
-        elif self.estado_de_jogo == jogando:
+        if self.estado_de_jogo == jogando:
             pyxel.cls(1)
 
             #ESTRELAS
@@ -440,9 +452,11 @@ class Jogo:
             for vida in self.vidas:
                 vida.draw()
 
-        elif self.estado_de_jogo == game_over:
+        if self.estado_de_jogo == game_over:
             pyxel.cls(0)
             pyxel.text(100,55,"O CASTELO FOI DESTRUIDO",8)
+            pyxel.text(100,90,"Pressione 'enter'",7)
+            pyxel.text(100,100,"'Q' para sair", 7)
             
 
 Jogo()
