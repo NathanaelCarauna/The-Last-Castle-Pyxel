@@ -193,18 +193,24 @@ class Castelo:
 
 #TIROS
 class Tiros:
-    def __init__(self, i, x= 30, y=88):
+    def __init__(self,i, v, x= 30, y=88):
         self.posicao_x = x
         self.posicao_y = y
         self.tipo_de_projetil = i
-        self.velocidade_x = 1.5
+        self.velocidade_x = 1*v
     
     def update(self):
         self.posicao_x += self.velocidade_x
 
     def draw(self):
-        if self.tipo_de_projetil == 0:
+        if 0 <= self.tipo_de_projetil <1 :
+            pyxel.blt(self.posicao_x,self.posicao_y,0,64,6,2,3,7)
+        if 1 <= self.tipo_de_projetil < 2:
             pyxel.blt(self.posicao_x,self.posicao_y,0,64,2,2,3,7)
+        if 2 <= self.tipo_de_projetil < 3:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,64,0,2,3,7)
+        if 3 <= self.tipo_de_projetil <= 4:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,64,4,2,3,7)
 
 #INIMIGOS
 class Inimigo:
@@ -249,48 +255,50 @@ class Chefao:
 
 #JOGO
 class Jogo:
+#DEFINIR CONSTRUCTOR DO JOGO
     def __init__(self):
 
-        #UPGRADES
+    #UPGRADES
         self.upgrades = [Upgrades(0,False,51,122), Upgrades(1,False,71,122), Upgrades(3,False,91,122), Upgrades(2,False,111,122)]
         self.vida_pode_evoluir = False
         self.dano_pode_evoluir = False
         self.velocidade_pode_evoluir = False
         self.quantidade_de_tiros_pode_evoluir = False
-        self.bonus_de_ouro_pode_evoluir = False
-        self.tiro_perfurador_pode_evoluir = False
+        #self.bonus_de_ouro_pode_evoluir = False
+        #self.tiro_perfurador_pode_evoluir = False
 
-        #CONTADORES
+    #CONTADORES
         self.contador_para_waves = 0
         self.indice_de_vidas = 0
         self.relampago_time = 10
 
-        #GOLD
+    #GOLD
         self.gold_total = 0
         self.gold = []
         self.gold_time = 200
         self.bonificador = 1.0
 
-        #LISTA DE VIDA
+    #LISTA DE VIDA
         self.vidas = [Vida(0,0), Vida(13,0), Vida(26,0), Vida(39,0)] 
         
 
-        #LISTA DE INIMIGOS
+    #LISTA DE INIMIGOS
         self.inimigos = []
 
-        #LISTA DE CASTELO
+    #LISTA DE CASTELO
         self.castelo = [Castelo(0,15,79)]
 
-        #LISTA DE TIROS
+    #LISTA DE TIROS
         self.tiros = []
         self.poder_de_ataque = 1
         self.quantidade_de_tiros = 1
         self.velocidade = 1
+        self.tipo_de_projétil = 0
 
-        #LISTA DE LUA
+    #LISTA DE LUA
         self.lua = [Lua()]
 
-        #LISTA DE ESTRELAS
+    #LISTA DE ESTRELAS
         self.estrelas = [Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),
                         Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),
                         Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),Estrelas(random.randint(0,5),random.randint(0,255)),
@@ -299,23 +307,23 @@ class Jogo:
                         Estrelas(random.randint(0,5),random.randint(0,255))]
         
 
-        #LISTA DE NUVENS
+    #LISTA DE NUVENS
         self.nuvens = [Nuvem(random.randint(0,1),random.randint(0,255)),Nuvem(random.randint(0,1),random.randint(0,255)),
                         Nuvem(random.randint(0,1),random.randint(0,255)),Nuvem(random.randint(0,1),random.randint(0,255)),
                         Nuvem(random.randint(0,1),random.randint(0,255))]
         
-        #LISTA DE RELAMPAGOS
+    #LISTA DE RELAMPAGOS
         self.relampagos = []
 
-        #LISTA DE ARVORES
+    #LISTA DE ARVORES
         self.arvores = [Arvores(150,95),]
 
-        #LISTA DE CHAO
+    #LISTA DE CHAO
         self.chao = [Chao(16,104),Chao(32,104),Chao(48,104),Chao(64,104),Chao(80,104),
                     Chao(96,104),Chao(112,104),Chao(128,104),Chao(144,104),Chao(160,104),Chao(176,104),
                     Chao(192,104),Chao(208,104),Chao(224,104),Chao(240,104),Chao(256,104)]        
 
-        #LISTA DE MONTANHAS
+    #LISTA DE MONTANHAS
         self.montanhas = [Montanha(0,88,1),Montanha(0,72,0),Montanha(0,72,2),Montanha(16,88,1),Montanha(32,88,1),Montanha(16,72,1), Montanha(16,56,0),Montanha(32,56,2),Montanha(32,72,1),
             Montanha(32,88,1),Montanha(48,88,1),Montanha(48,72,2),Montanha(64,88,2),Montanha(64,88,0),Montanha(80,88,1),Montanha(96,88,1),Montanha(112,88,1),
             Montanha(128,88,1),Montanha(144,88,1),Montanha(160,88,1),Montanha(176,88,1),Montanha(96,72,1), Montanha(112,72,1),Montanha(128,72,1),Montanha(144,72,1),
@@ -323,28 +331,29 @@ class Jogo:
             Montanha(144,40,2), Montanha(160,56,2), Montanha(176,72,2),  Montanha(192,88,2),Montanha(176,72,0), Montanha(192,72,2),Montanha(192,88,1), Montanha(208,88,0),
             Montanha(208,88,2), Montanha(224,88,2)]
 
+    #CONFIGURAÇÕES DO  JOGO
         self.estado_de_jogo = inicio_de_jogo
         pyxel.init(255,140)
         pyxel.mouse(True)
         pyxel.load("The_Last_Castle.pyxel")
         pyxel.run(self.update,self.draw)
 
-
+#ATUALIZAR
     def update(self):
-        #QUIT
+    #QUIT
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
         if self.estado_de_jogo == inicio_de_jogo:
-            #PLAY
+        #PLAY
             if pyxel.btn(pyxel.KEY_ENTER):
                 self.estado_de_jogo = jogando
 
-        #ATUALIZAÇÃO QUANDO O JOGO INICIA
+    #ATUALIZAÇÃO QUANDO O JOGO INICIA
         elif self.estado_de_jogo == jogando:
 
         #SISTEMA DE UPGRADE
-            #TROCAR ICONE DE UPGRADE QUANDO PUDER EVOLUIR
+             #TROCAR ICONE DE UPGRADE QUANDO PUDER EVOLUIR
             if self.dano_pode_evoluir == True:
                 self.upgrades[0].pode_evoluir = True
             else:
@@ -365,25 +374,37 @@ class Jogo:
             else:
                 self.upgrades[3].pode_evoluir = False
 
-            #ATIVADOR ÍCONE DOS UPGRADES COM BASE NO OURO
+        #ATIVADOR ÍCONE DOS UPGRADES COM BASE NO OURO
             if self.gold_total >= 75:
                 self.dano_pode_evoluir = True
                 self.velocidade_pode_evoluir = True
-            
+            else:
+                self.dano_pode_evoluir = False
+                self.velocidade_pode_evoluir = False
+
             if self.gold_total >= 150:
                 self.vida_pode_evoluir = True
+            else:
+                self.vida_pode_evoluir = False
 
-            #COMPRAR UPGRADES:
+        #COMPRAR UPGRADES:
             if 51<=pyxel.mouse_x <=67 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.dano_pode_evoluir:
                 self.gold_total -= 75
                 self.poder_de_ataque += 1
                 self.dano_pode_evoluir = False
+                self.tipo_de_projétil += 0.2
 
-            #INCREMENTAR CONTADORES
+            if 71<= pyxel.mouse_x <= 87  and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.velocidade_pode_evoluir:
+                self.gold_total -= 75
+                self.velocidade +=0.2
+                self.velocidade_pode_evoluir = False
+
+                
+        #INCREMENTAR CONTADORES
             self.contador_para_waves += 1
             self.gold_time -= 1
 
-            #GERAR INIMIGO
+        #GERAR INIMIGO
                 #WAVE 1
             if self.contador_para_waves> 100 and self.contador_para_waves<106:
                     self.inimigos.append(Inimigo(0))
@@ -420,7 +441,7 @@ class Jogo:
             if self.contador_para_waves>2735 and self.contador_para_waves<2751:
                 self.inimigos.append(Inimigo(2))
 
-            #MOVER INIMIGO
+        #MOVER INIMIGO
             for inimigo in self.inimigos:
                 inimigo.update()
                 
@@ -430,15 +451,15 @@ class Jogo:
                     self.inimigos.remove(inimigo)
                     self.vidas[self.indice_de_vidas].recebeu_dano = True
             
-            #VERIFICADOR DE VIDA DO CASTELO
+        #VERIFICADOR DE VIDA DO CASTELO
             if self.indice_de_vidas == (len(self.vidas)*-1):
                 self.estado_de_jogo = game_over
 
-            #GERAR TIRO
-            if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON):
-                self.tiros.append(Tiros(0,30,105))
+        #GERAR TIRO
+            if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and pyxel.mouse_y <= 120:
+                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,30,105))
 
-            #MOVER PROJÉTIL
+        #MOVER PROJÉTIL
             for tiro in self.tiros:
                 tiro.update()
                 if tiro.posicao_x > 255:
@@ -466,13 +487,13 @@ class Jogo:
                         except:
                             None
 
-            #OURO SOBRE OS INIMIGOS
+        #OURO SOBRE OS INIMIGOS
             for ouro in self.gold:
                 ouro.update()
                 if self.gold_time <=0:
                     self.gold.remove(ouro)        
 
-            #MOVER E GERAR ESTRELAS
+        #MOVER E GERAR ESTRELAS
             for i in range(11):
                 if i == 10:
                     if len(self.estrelas)<20:
@@ -482,7 +503,7 @@ class Jogo:
                     if estrela.posicao_x <-16:
                         self.estrelas.remove(estrela)
 
-            #MOVER E GERAR LUA
+        #MOVER E GERAR LUA
             for i in range(11):
                 if i == 10:
                     if len(self.lua)<1:
@@ -492,7 +513,7 @@ class Jogo:
                 if lua.posicao_x<-32:
                     self.lua.remove(lua)
 
-            #MOVER E GERAR NUVENS
+        #MOVER E GERAR NUVENS
             for i in range(11):
                 if i == 10:
                     if len(self.nuvens)<7:
@@ -502,7 +523,7 @@ class Jogo:
                 if nuvem.posicao_x<-30:
                     self.nuvens.remove(nuvem)
             
-            #ADICIONAR RELAMPAGOS
+        #ADICIONAR RELAMPAGOS
             for i in range(random.randint(0,100)):                                                                  #LOOP COM UM TEMPO ALEATÓRIO PARA OS RELAMPAGOS APARECEREM
                 nuvem = self.nuvens[random.randint(0,len(self.nuvens)-1)]                                           #UMA NUVEM ALEATÓRIA DA LISTA SELF.NUVENS
                 if nuvem.indice == 0:
@@ -516,7 +537,7 @@ class Jogo:
                 
                 
                     
-        #GAME OVER, RESETAR JOGO
+    #GAME OVER, RESETAR JOGO
         if self.estado_de_jogo == game_over:
             if pyxel.btnr(pyxel.KEY_ENTER):
                 self.estado_de_jogo = inicio_de_jogo
@@ -524,82 +545,85 @@ class Jogo:
                 self.contador_para_waves = 0
                 self.inimigos = []
                 self.tiros = []
+                self.tipo_de_projétil = 0
+                self.velocidade = 1
+                self.poder_de_ataque = 1
                 self.gold_total = 0
                 for vida in  self.vidas:
                     vida.recebeu_dano = False
 
-             
+#DESENHAR             
     def draw(self):
-        #TIRAR RASTRO
+    #TIRAR RASTRO
         pyxel.cls(0)
 
-        #MENU PRINCIPAL
+    #MENU PRINCIPAL
         if self.estado_de_jogo == inicio_de_jogo:
             pyxel.text(122,50,"The Last Castle",8)
             pyxel.text(10,95,"Pressione 'enter' para jogar", 7)
             pyxel.text(10,105,"Pressione 'Q' para sair", 7)
             Castelo(2,30,40).draw()
 
-        #QUANDO O JOGO INICIAR
+    #QUANDO O JOGO INICIAR
         if self.estado_de_jogo == jogando:
             pyxel.cls(1)
 
-            #ESTRELAS
+        #ESTRELAS
             for estrela in self.estrelas:
                 estrela.draw()
 
-            #LUA
+        #LUA
             for lua in self.lua:
                 lua.draw()
 
-            #CHAO
+        #CHAO
             Chao(0,104).draw(1)
             for chao in self.chao:
                 chao.draw(0)
                 
-            #MONHANHAS
+        #MONHANHAS
             for montanha in self.montanhas:
                 montanha.draw()
             
-            #CHEFAO NA MONTANHA
+        #CHEFAO NA MONTANHA
             Chefao(128,18).draw()
 
-            #RELAMPAGOS
+        #RELAMPAGOS
             for Relampago in self.relampagos:
                 Relampago.draw()
 
-            #NUVENS
+        #NUVENS
             for nuvem in self.nuvens:
                 nuvem.draw()
 
-            #ARVORES
+        #ARVORES
             Arvores(47,89).draw(0)
             Arvores(70,88).draw(0)
             Arvores(200,88).draw(0)
             
-            #INIMIGO
+        #INIMIGO
             for inimigo in self.inimigos:
                inimigo.draw()
 
-            #OURO DE INIMIGO
+        #OURO DE INIMIGO
             for ouro in self.gold:
                 ouro.draw()
 
-            # CASTELO
+        # CASTELO
             for castelo in self.castelo:
                 castelo.draw()
 
-            #TIROS
+        #TIROS
             for tiro in self.tiros:
                 tiro.draw()
 
-            #ARVORES
+        #ARVORES
             for arvore in self.arvores:
                 arvore.draw(0)
             Arvores(122,104).draw(1)
             Arvores(220,109).draw(1)
 
-            #MENU DE UPGRADE
+        #MENU DE UPGRADE
             pyxel.rect(0,120,255,140,8)        #BORDA ROSA
             pyxel.rect(2,121,131,138,0)        #RETANGULO PRETO ESQUERDO
             pyxel.rect(133,120,255,140,0)      #RETANGULO PRETO DIREITO
@@ -608,15 +632,15 @@ class Jogo:
                 upgrade.draw()
 
 
-            #VIDAS
+        #VIDAS
             for vida in self.vidas:
                 vida.draw()
             
-            #OURO:
+        #OURO:
             Ouro(0,215).draw()
             pyxel.text(235,6,"{}".format(self.gold_total),9)
 
-        #TELA DE GAME OVER
+    #TELA DE GAME OVER
         if self.estado_de_jogo == game_over:
             pyxel.cls(0)
             pyxel.text(100,55,"O CASTELO FOI DESTRUIDO",8)
