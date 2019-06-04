@@ -7,6 +7,39 @@ inicio_de_jogo = 0
 jogando = 1
 game_over = 2
 
+#UPGRADES
+class Upgrades:
+    def __init__(self, up, pup, x, y):
+        self.posicao_x = x
+        self.posicao_y = y
+        self.upgrade = up
+        self.pode_evoluir = pup
+    
+    def draw(self):
+        if self.upgrade == 0:
+            if self.pode_evoluir == False:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,80,0,16,16,0)
+            else:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,80,16,16,16,0)
+
+        if self.upgrade == 1:
+            if self.pode_evoluir == False:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,96,0,16,16,0)
+            else:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,96,16,16,16,0)
+
+        if self.upgrade == 2:
+            if self.pode_evoluir == False:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,112,0,16,16,0)
+            else:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,112,16,16,16,0)
+
+        if self.upgrade == 3:
+            if self.pode_evoluir == False:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,128,0,16,16,0)
+            else:
+                pyxel.blt(self.posicao_x,self.posicao_y, 0,128,16,16,16,0)
+
 #OURO
 class Ouro:
     def __init__(self,tipo=1, x=210, y=0):
@@ -38,16 +71,16 @@ class Vida:
 
 #MONTANHA
 class Montanha:
-    def __init__(self, x, y):
+    def __init__(self, x, y, i):
         self.posicao_x = x
         self.posicao_y = y
-    
-    def draw(self, i):
-        if i == 0:
+        self.tipo = i
+    def draw(self):
+        if self.tipo == 0:
             pyxel.blt(self.posicao_x, self.posicao_y,0,64,48,16,16,7)
-        elif i == 1:
+        elif self.tipo == 1:
             pyxel.blt(self.posicao_x, self.posicao_y,0,80,48,16,16,7)
-        elif i == 2:
+        elif self.tipo == 2:
             pyxel.blt(self.posicao_x, self.posicao_y,0,96,48,16,16,7)
 
 #CHÃO
@@ -157,6 +190,7 @@ class Castelo:
             pyxel.blt(self.posicao_x, self.posicao_y,0,0,48,27,32,7)
         if self.tipo_de_castelo == 2:
             pyxel.blt(self.posicao_x, self.posicao_y,0,96,96,32,32,7)
+
 #TIROS
 class Tiros:
     def __init__(self, i, x= 30, y=88):
@@ -171,7 +205,6 @@ class Tiros:
     def draw(self):
         if self.tipo_de_projetil == 0:
             pyxel.blt(self.posicao_x,self.posicao_y,0,64,2,2,3,7)
-
 
 #INIMIGOS
 class Inimigo:
@@ -219,10 +252,11 @@ class Jogo:
     def __init__(self):
 
         #UPGRADES
-        self.castelo_pode_evoluir = False
+        self.upgrades = [Upgrades(0,False,51,122), Upgrades(1,False,71,122), Upgrades(3,False,91,122), Upgrades(2,False,111,122)]
+        self.vida_pode_evoluir = False
         self.dano_pode_evoluir = False
         self.velocidade_pode_evoluir = False
-        self.cadencia_pode_evoluir = False
+        self.quantidade_de_tiros_pode_evoluir = False
         self.bonus_de_ouro_pode_evoluir = False
         self.tiro_perfurador_pode_evoluir = False
 
@@ -250,7 +284,7 @@ class Jogo:
         #LISTA DE TIROS
         self.tiros = []
         self.poder_de_ataque = 1
-        self.cadencia = 3
+        self.quantidade_de_tiros = 1
         self.velocidade = 1
 
         #LISTA DE LUA
@@ -270,7 +304,6 @@ class Jogo:
                         Nuvem(random.randint(0,1),random.randint(0,255)),Nuvem(random.randint(0,1),random.randint(0,255)),
                         Nuvem(random.randint(0,1),random.randint(0,255))]
         
-
         #LISTA DE RELAMPAGOS
         self.relampagos = []
 
@@ -282,8 +315,16 @@ class Jogo:
                     Chao(96,104),Chao(112,104),Chao(128,104),Chao(144,104),Chao(160,104),Chao(176,104),
                     Chao(192,104),Chao(208,104),Chao(224,104),Chao(240,104),Chao(256,104)]        
 
+        #LISTA DE MONTANHAS
+        self.montanhas = [Montanha(0,88,1),Montanha(0,72,0),Montanha(0,72,2),Montanha(16,88,1),Montanha(32,88,1),Montanha(16,72,1), Montanha(16,56,0),Montanha(32,56,2),Montanha(32,72,1),
+            Montanha(32,88,1),Montanha(48,88,1),Montanha(48,72,2),Montanha(64,88,2),Montanha(64,88,0),Montanha(80,88,1),Montanha(96,88,1),Montanha(112,88,1),
+            Montanha(128,88,1),Montanha(144,88,1),Montanha(160,88,1),Montanha(176,88,1),Montanha(96,72,1), Montanha(112,72,1),Montanha(128,72,1),Montanha(144,72,1),
+            Montanha(160,72,1), Montanha(112,56,1),Montanha(128,56,1), Montanha(144,56,1), Montanha(80,72,0),Montanha(96,56,0), Montanha(112,40,0), Montanha(128,40,1),
+            Montanha(144,40,2), Montanha(160,56,2), Montanha(176,72,2),  Montanha(192,88,2),Montanha(176,72,0), Montanha(192,72,2),Montanha(192,88,1), Montanha(208,88,0),
+            Montanha(208,88,2), Montanha(224,88,2)]
+
         self.estado_de_jogo = inicio_de_jogo
-        pyxel.init(255,120)
+        pyxel.init(255,140)
         pyxel.mouse(True)
         pyxel.load("The_Last_Castle.pyxel")
         pyxel.run(self.update,self.draw)
@@ -302,6 +343,41 @@ class Jogo:
         #ATUALIZAÇÃO QUANDO O JOGO INICIA
         elif self.estado_de_jogo == jogando:
 
+        #SISTEMA DE UPGRADE
+            #TROCAR ICONE DE UPGRADE QUANDO PUDER EVOLUIR
+            if self.dano_pode_evoluir == True:
+                self.upgrades[0].pode_evoluir = True
+            else:
+                self.upgrades[0].pode_evoluir = False
+
+            if self.velocidade_pode_evoluir == True:
+                self.upgrades[1].pode_evoluir = True
+            else:
+                self.upgrades[1].pode_evoluir = False
+
+            if self.quantidade_de_tiros_pode_evoluir == True:
+                self.upgrades[2].pode_evoluir = True
+            else:
+                self.upgrades[2].pode_evoluir = False
+            
+            if self.vida_pode_evoluir == True:
+                self.upgrades[3].pode_evoluir = True
+            else:
+                self.upgrades[3].pode_evoluir = False
+
+            #ATIVADOR ÍCONE DOS UPGRADES COM BASE NO OURO
+            if self.gold_total >= 75:
+                self.dano_pode_evoluir = True
+                self.velocidade_pode_evoluir = True
+            
+            if self.gold_total >= 150:
+                self.vida_pode_evoluir = True
+
+            #COMPRAR UPGRADES:
+            if 51<=pyxel.mouse_x <=67 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.dano_pode_evoluir:
+                self.gold_total -= 75
+                self.poder_de_ataque += 1
+                self.dano_pode_evoluir = False
 
             #INCREMENTAR CONTADORES
             self.contador_para_waves += 1
@@ -365,7 +441,7 @@ class Jogo:
             #MOVER PROJÉTIL
             for tiro in self.tiros:
                 tiro.update()
-                if tiro.posicao_x > pyxel.width:
+                if tiro.posicao_x > 255:
                     self.tiros.remove(tiro)
                 #DANO AOS INIMIGOS
                 for inimigo in self.inimigos:
@@ -459,7 +535,7 @@ class Jogo:
 
         #MENU PRINCIPAL
         if self.estado_de_jogo == inicio_de_jogo:
-            pyxel.text(120,50,"The Last Castle",8)
+            pyxel.text(122,50,"The Last Castle",8)
             pyxel.text(10,95,"Pressione 'enter' para jogar", 7)
             pyxel.text(10,105,"Pressione 'Q' para sair", 7)
             Castelo(2,30,40).draw()
@@ -482,49 +558,8 @@ class Jogo:
                 chao.draw(0)
                 
             #MONHANHAS
-            Montanha(0,88).draw(1)
-            Montanha(0,72).draw(0)
-            Montanha(0,72).draw(2)
-            Montanha(16,88).draw(1)
-            Montanha(32,88).draw(1)
-            Montanha(16,72).draw(1)
-            Montanha(16,56).draw(0)
-            Montanha(32,56).draw(2)
-            Montanha(32,72).draw(1)
-            Montanha(32,88).draw(1)
-            Montanha(48,88).draw(1)
-            Montanha(48,72).draw(2)
-            Montanha(64,88).draw(2)
-            Montanha(64,88).draw(0)
-            Montanha(80,88).draw(1)
-            Montanha(96,88).draw(1)
-            Montanha(112,88).draw(1)
-            Montanha(128,88).draw(1)
-            Montanha(144,88).draw(1)
-            Montanha(160,88).draw(1)
-            Montanha(176,88).draw(1)
-            Montanha(96,72).draw(1)
-            Montanha(112,72).draw(1)
-            Montanha(128,72).draw(1)
-            Montanha(144,72).draw(1)
-            Montanha(160,72).draw(1)
-            Montanha(112,56).draw(1)
-            Montanha(128,56).draw(1)
-            Montanha(144,56).draw(1)
-            Montanha(80,72).draw(0)
-            Montanha(96,56).draw(0)
-            Montanha(112,40).draw(0)
-            Montanha(128,40).draw(1)
-            Montanha(144,40).draw(2)
-            Montanha(160,56).draw(2)
-            Montanha(176,72).draw(2)
-            Montanha(192,88).draw(2)
-            Montanha(176,72).draw(0)
-            Montanha(192,72).draw(2)
-            Montanha(192,88).draw(1)
-            Montanha(208,88).draw(0)
-            Montanha(208,88).draw(2)
-            Montanha(224,88).draw(2)
+            for montanha in self.montanhas:
+                montanha.draw()
             
             #CHEFAO NA MONTANHA
             Chefao(128,18).draw()
@@ -561,8 +596,17 @@ class Jogo:
             #ARVORES
             for arvore in self.arvores:
                 arvore.draw(0)
-            Arvores(120,104).draw(1)
+            Arvores(122,104).draw(1)
             Arvores(220,109).draw(1)
+
+            #MENU DE UPGRADE
+            pyxel.rect(0,120,255,140,8)        #BORDA ROSA
+            pyxel.rect(2,121,131,138,0)        #RETANGULO PRETO ESQUERDO
+            pyxel.rect(133,120,255,140,0)      #RETANGULO PRETO DIREITO
+            pyxel.text(5,127,"UPGRADES",9)
+            for upgrade in self.upgrades:
+                upgrade.draw()
+
 
             #VIDAS
             for vida in self.vidas:
