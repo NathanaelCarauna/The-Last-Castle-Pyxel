@@ -1,5 +1,5 @@
 import pyxel
-import euclid3
+import euclid3 as eu
 import random
 
 #MODOS DE JOGO:
@@ -197,10 +197,13 @@ class Tiros:
         self.posicao_x = x
         self.posicao_y = y
         self.tipo_de_projetil = i
-        self.velocidade_x = 1*v
-    
+        self.velocidade_x = ((pyxel.mouse_x - self.posicao_x)/pyxel.mouse_x)*v
+        self.velocidade_y = ((pyxel.mouse_y - self.posicao_y)/pyxel.mouse_y)*v
+
     def update(self):
         self.posicao_x += self.velocidade_x
+        self.posicao_y += self.velocidade_y
+
 
     def draw(self):
         if 0 <= self.tipo_de_projetil <1 :
@@ -219,8 +222,8 @@ class Inimigo:
         self.posicao_x = x
         self.posicao_y = random.randint(99,102)
         self.velocidade = -1*(random.randint(1,8)/10)
-        #if self.tipo_de_inimigo == 0:
-        self.life = 3
+        if self.tipo_de_inimigo == 0:
+            self.life = 3
         if self.tipo_de_inimigo == 1:
             self.life = 9
         elif self.tipo_de_inimigo == 2:
@@ -457,20 +460,21 @@ class Jogo:
 
         #GERAR TIRO
             if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and pyxel.mouse_y <= 120:
-                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,30,105))
+                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,88))
 
         #MOVER PROJÉTIL
             for tiro in self.tiros:
                 tiro.update()
-                if tiro.posicao_x > 255:
+                if tiro.posicao_x > 255 or tiro.posicao_x<0 or tiro.posicao_y>120 or tiro.posicao_y<0:
                     self.tiros.remove(tiro)
-                #DANO AOS INIMIGOS
+                    
+        #DANO AOS INIMIGOS
                 for inimigo in self.inimigos:
-                    if tiro.posicao_x >= inimigo.posicao_x:
+                    if tiro.posicao_x >= inimigo.posicao_x and 100<= tiro.posicao_y<=110:
                         inimigo.life -= self.poder_de_ataque
                         if inimigo.life <= 0:
 
-                            #INIMIGOS COM VALORES DIFERENTES
+        #GOLD QUE OS INIMIGOS DÃO
                             if inimigo.tipo_de_inimigo == 0:
                                 self.gold_total += 10
                             elif inimigo.tipo_de_inimigo == 1:
