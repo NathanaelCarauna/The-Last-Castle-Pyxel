@@ -1,5 +1,4 @@
 import pyxel
-import euclid3 as eu
 import random
 
 #MODOS DE JOGO:
