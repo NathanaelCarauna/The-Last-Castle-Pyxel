@@ -6,6 +6,10 @@ inicio_de_jogo = 0
 jogando = 1
 game_over = 2
 
+def gold_de_upgrade(x):
+            novo_valor = x+(x/2)
+            return(novo_valor)
+
 #UPGRADES
 class Upgrades:
     def __init__(self, up, pup, x, y):
@@ -197,11 +201,11 @@ class Tiros:
         self.posicao_y = y
         self.tipo_de_projetil = i
         self.velocidade_x = 1*v #((pyxel.mouse_x - self.posicao_x)/pyxel.mouse_x)*v
-        self.velocidade_y = ((pyxel.mouse_y - self.posicao_y)/self.posicao_y)*v
+        #self.velocidade_y = ((pyxel.mouse_y - self.posicao_y)/self.posicao_y)*v
 
     def update(self):
         self.posicao_x += self.velocidade_x
-        self.posicao_y += self.velocidade_y
+        #self.posicao_y += self.velocidade_y
 
 
     def draw(self):
@@ -222,13 +226,13 @@ class Inimigo:
         self.posicao_y = random.randint(99,102)
         self.velocidade = -1*(random.randint(1,8)/10)
         if self.tipo_de_inimigo == 0:
-            self.life = 3
+            self.life = 6
         if self.tipo_de_inimigo == 1:
-            self.life = 9
+            self.life = 20
         elif self.tipo_de_inimigo == 2:
-            self.life = 30
+            self.life = 50
         elif self.tipo_de_inimigo == 3:
-            self.life = 80
+            self.life = 200
     
     def update(self):
         self.posicao_x += self.velocidade
@@ -273,9 +277,15 @@ class Jogo:
         self.contador_para_waves = 0
         self.indice_de_vidas = 0
         self.relampago_time = 10
+    
+    #PREÇOS DO UPGRADE
+        self.dano_preço = 90
+        self.velocidade_preço = 75
+        self.qtd_tiros = 100
+        self.vida_preço = 150
 
     #GOLD
-        self.gold_total = 0
+        self.gold_total = 150
         self.gold = []
         self.gold_time = 200
         self.bonificador = 1.0
@@ -340,6 +350,7 @@ class Jogo:
         pyxel.load("The_Last_Castle.pyxel")
         pyxel.run(self.update,self.draw)
 
+    
 #ATUALIZAR
     def update(self):
     #QUIT
@@ -377,11 +388,15 @@ class Jogo:
                 self.upgrades[3].pode_evoluir = False
 
         #ATIVADOR ÍCONE DOS UPGRADES COM BASE NO OURO
-            if self.gold_total >= 75:
+            if self.gold_total >= self.dano_preço:
                 self.dano_pode_evoluir = True
-                self.velocidade_pode_evoluir = True
+                
             else:
                 self.dano_pode_evoluir = False
+                
+            if self.gold_total >= self.velocidade_preço:
+                self.velocidade_pode_evoluir = True
+            else:
                 self.velocidade_pode_evoluir = False
 
             if self.gold_total >= 150:
@@ -390,22 +405,28 @@ class Jogo:
                 self.vida_pode_evoluir = False
 
         #COMPRAR UPGRADES:
+            #EVOLUIR PODER DE ATAQUE
             if 51<=pyxel.mouse_x <=67 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.dano_pode_evoluir:
-                self.gold_total -= 75
+                self.gold_total -= int(self.dano_preço)
                 self.poder_de_ataque += 1
                 self.dano_pode_evoluir = False
                 self.tipo_de_projétil += 0.2
+                self.dano_preço = gold_de_upgrade(self.dano_preço)
 
+            #EVOLUIR VELOCIDADE DE ATAQUE
             if 71<= pyxel.mouse_x <= 87  and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.velocidade_pode_evoluir:
-                self.gold_total -= 75
+                self.gold_total -= int(self.velocidade_preço)
                 self.velocidade +=0.2
                 self.velocidade_pode_evoluir = False
+                self.velocidade_preço = gold_de_upgrade(self.velocidade_preço)
 
+            #EVOLUIR VIDA
             if 111<=pyxel.mouse_x <= 127 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.vida_pode_evoluir:
-                self.gold_total-=150
+                self.gold_total-= int(self.vida_preço)
                 self.vidas.append(Vida())
                 self.vida_pode_evoluir = False
                 self.castelo[0].tipo_de_castelo += 1
+                self.vida_preço = gold_de_upgrade(self.vida_preço)
 
                 
         #INCREMENTAR CONTADORES
@@ -414,39 +435,39 @@ class Jogo:
 
         #GERAR INIMIGO
                 #WAVE 1
-            if self.contador_para_waves> 100 and self.contador_para_waves<106:
+            if self.contador_para_waves> 100 and self.contador_para_waves<103:
                     self.inimigos.append(Inimigo(0))
                     
                 #WAVE 2
-            if self.contador_para_waves> 500 and self.contador_para_waves<511:
+            if self.contador_para_waves> 500 and self.contador_para_waves<508:
                 self.inimigos.append(Inimigo(0))
 
                 #WAVE 3
-            if self.contador_para_waves>900 and self.contador_para_waves<916:
+            if self.contador_para_waves>900 and self.contador_para_waves<913:
                 self.inimigos.append(Inimigo(0))
-            if self.contador_para_waves>910 and self.contador_para_waves<916:
+            if self.contador_para_waves>910 and self.contador_para_waves<914:
                 self.inimigos.append(Inimigo(1))
 
                 #WAVE 4
-            if self.contador_para_waves>1300 and self.contador_para_waves<1321:
+            if self.contador_para_waves>1300 and self.contador_para_waves<1315:
                 self.inimigos.append(Inimigo(0))
-            if self.contador_para_waves>1310 and self.contador_para_waves<1321:
+            if self.contador_para_waves>1310 and self.contador_para_waves<1316:
                 self.inimigos.append(Inimigo(1))
 
                 #WAVE 5
-            if self.contador_para_waves>1700 and self.contador_para_waves<1731:
+            if self.contador_para_waves>1700 and self.contador_para_waves<1715:
                 self.inimigos.append(Inimigo(1))
 
                 #WAVE 6
-            if self.contador_para_waves>2100 and self.contador_para_waves<2151:
+            if self.contador_para_waves>2100 and self.contador_para_waves<2120:
                 self.inimigos.append(Inimigo(1))
             
                 #WAVE 7
-            if self.contador_para_waves>2700 and self.contador_para_waves<2751:
+            if self.contador_para_waves>2700 and self.contador_para_waves<2731:
                 self.inimigos.append(Inimigo(0))
-            if self.contador_para_waves>2720 and self.contador_para_waves<2751:
+            if self.contador_para_waves>2720 and self.contador_para_waves<2721:
                 self.inimigos.append(Inimigo(1))
-            if self.contador_para_waves>2735 and self.contador_para_waves<2751:
+            if self.contador_para_waves>2735 and self.contador_para_waves<2740:
                 self.inimigos.append(Inimigo(2))
 
         #MOVER INIMIGO
@@ -465,7 +486,7 @@ class Jogo:
 
         #GERAR TIRO
             if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and pyxel.mouse_y <= 120:
-                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,88))
+                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,105))
 
         #MOVER PROJÉTIL
             for tiro in self.tiros:
