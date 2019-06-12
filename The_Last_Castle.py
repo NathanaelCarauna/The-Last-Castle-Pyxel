@@ -7,7 +7,7 @@ jogando = 1
 game_over = 2
 
 def gold_de_upgrade(x):
-            novo_valor = x+(x/2)
+            novo_valor = x+(x/4)
             return(novo_valor)
 
 #UPGRADES
@@ -139,9 +139,9 @@ class Nuvem:
     def draw(self):
         i = self.indice
         if i == 0:
-            pyxel.blt(self.posicao_x, self.posicao_y,0,0,16,24,16,7)
+            pyxel.blt(self.posicao_x, self.posicao_y,0,0,16,24,16,15)
         elif i == 1:
-            pyxel.blt(self.posicao_x,self.posicao_y,0,24,16,24,8,7)      
+            pyxel.blt(self.posicao_x,self.posicao_y,0,24,16,24,8,15)      
 
 #LUA
 class Lua:
@@ -190,9 +190,9 @@ class Castelo:
 
     def draw(self):
         if self.tipo_de_castelo == 0:
-            pyxel.blt(self.posicao_x, self.posicao_y,0,0,48,27,32,7)
+            pyxel.blt(self.posicao_x, self.posicao_y,0,0,48,40,32,7)
         if self.tipo_de_castelo == 2:
-            pyxel.blt(self.posicao_x, self.posicao_y,0,96,96,32,32,7)
+            pyxel.blt(self.posicao_x, self.posicao_y,0,96,96,40,32,7)
 
 #TIROS
 class Tiros:
@@ -201,11 +201,11 @@ class Tiros:
         self.posicao_y = y
         self.tipo_de_projetil = i
         self.velocidade_x = 1*v #((pyxel.mouse_x - self.posicao_x)/pyxel.mouse_x)*v
-        #self.velocidade_y = ((pyxel.mouse_y - self.posicao_y)/self.posicao_y)*v
+        self.velocidade_y = ((pyxel.mouse_y - self.posicao_y)/self.posicao_y)*v
 
     def update(self):
         self.posicao_x += self.velocidade_x
-        #self.posicao_y += self.velocidade_y
+        self.posicao_y += self.velocidade_y
 
 
     def draw(self):
@@ -223,8 +223,11 @@ class Inimigo:
     def __init__(self,ti, x=255):
         self.tipo_de_inimigo = ti
         self.posicao_x = x
-        self.posicao_y = random.randint(99,102)
+        self.posicao_y = random.randint(96,109)
         self.velocidade = -1*(random.randint(1,8)/10)
+        self.animar = True
+        self.vivo = True
+        self.pode_dar_ouro = True
         if self.tipo_de_inimigo == 0:
             self.life = 6
         if self.tipo_de_inimigo == 1:
@@ -233,19 +236,75 @@ class Inimigo:
             self.life = 50
         elif self.tipo_de_inimigo == 3:
             self.life = 200
-    
+        
+
     def update(self):
-        self.posicao_x += self.velocidade
+        if self.vivo:
+            self.posicao_x += self.velocidade
 
     def draw(self):
+        #INIMIGO MAIS FRACO
         if self.tipo_de_inimigo == 0:
-            pyxel.blt(self.posicao_x,self.posicao_y,0,64,8,8,8,7)
+            #ANIMAÇÃO DA MARCHA
+            if self.vivo == True:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,64,8,8,8,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,72,8,8,8,7)
+
+            #ANIMAÇÃO DA MORTE
+            if self.vivo == False:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,64,16,8,8,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,72,16,8,8,7)
+        #INIMIGO DE LANÇA
         elif self.tipo_de_inimigo == 1:
-            pyxel.blt(self.posicao_x,self.posicao_y,0,48,7,8,9,7)
+            #ANIMAÇÃO DA MARCHA
+            if self.vivo == True:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,48,7,8,9,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,56,7,8,9,7)
+
+            #ANIMAÇÃO DA MORTE
+            else:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,72,39,8,9,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,80,39,16,9,7)
+
+        #INIMIGO DE ESCUDO
         elif self.tipo_de_inimigo == 2:
-            pyxel.blt(self.posicao_x,self.posicao_y,0,0,5,8,10,7)
+            #ANIMAÇÃO DA MARCHA
+            if self.vivo:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,0,5,8,10,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,8,5,8,10,7)
+                    
+            #ANIMAÇÃO DA MORTE
+            else:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,96,37,8,10,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,104,37,16,10,7)
+        
+        #INIMIGO GIGANTE
         elif self.tipo_de_inimigo == 3:
-            pyxel.blt(self.posicao_x,self.posicao_y,0,16,0,16,16,7)
+            #ANIMAÇÃO DA MARCHA
+            if self.vivo:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,16,0,16,16,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,40,48,16,16,7)
+
+            #ANIMAÇÃO DA MORTE
+            else:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,120,32,16,16,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,136,32,16,16,7)
 
 class Chefao:
     def __init__(self, x, y):
@@ -277,7 +336,7 @@ class Jogo:
         self.contador_para_waves = 0
         self.indice_de_vidas = 0
         self.relampago_time = 10
-    
+
     #PREÇOS DO UPGRADE
         self.dano_preço = 90
         self.velocidade_preço = 75
@@ -285,20 +344,17 @@ class Jogo:
         self.vida_preço = 150
 
     #GOLD
-        self.gold_total = 150
+        self.gold_total = 1000000000
         self.gold = []
-        self.gold_time = 200
-        self.bonificador = 1.0
 
     #LISTA DE VIDA
         self.vidas = [Vida()]
         
-
     #LISTA DE INIMIGOS
         self.inimigos = []
 
     #LISTA DE CASTELO
-        self.castelo = [Castelo(0,15,79)]
+        self.castelo = [Castelo(0,15,83)]
 
     #LISTA DE TIROS
         self.tiros = []
@@ -365,6 +421,15 @@ class Jogo:
     #ATUALIZAÇÃO QUANDO O JOGO INICIA
         elif self.estado_de_jogo == jogando:
 
+        #ANIMAÇÃO
+            for inimigo in self.inimigos:
+                if inimigo.vivo:
+                    if pyxel.frame_count % 5 == 0:
+                        inimigo.animar = not inimigo.animar
+                else:
+                    if pyxel.frame_count % 20 == 0:
+                        inimigo.animar = False
+
         #SISTEMA DE UPGRADE
              #TROCAR ICONE DE UPGRADE QUANDO PUDER EVOLUIR
             if self.dano_pode_evoluir == True:
@@ -427,11 +492,9 @@ class Jogo:
                 self.vida_pode_evoluir = False
                 self.castelo[0].tipo_de_castelo += 1
                 self.vida_preço = gold_de_upgrade(self.vida_preço)
-
-                
+               
         #INCREMENTAR CONTADORES
             self.contador_para_waves += 1
-            self.gold_time -= 1
 
         #GERAR INIMIGO
                 #WAVE 1
@@ -440,11 +503,11 @@ class Jogo:
                     
                 #WAVE 2
             if self.contador_para_waves> 500 and self.contador_para_waves<508:
-                self.inimigos.append(Inimigo(0))
+                self.inimigos.append(Inimigo(1))
 
                 #WAVE 3
             if self.contador_para_waves>900 and self.contador_para_waves<913:
-                self.inimigos.append(Inimigo(0))
+                self.inimigos.append(Inimigo(2))
             if self.contador_para_waves>910 and self.contador_para_waves<914:
                 self.inimigos.append(Inimigo(1))
 
@@ -486,7 +549,7 @@ class Jogo:
 
         #GERAR TIRO
             if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and pyxel.mouse_y <= 120:
-                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,105))
+                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,88))
 
         #MOVER PROJÉTIL
             for tiro in self.tiros:
@@ -496,32 +559,30 @@ class Jogo:
                     
         #DANO AOS INIMIGOS
                 for inimigo in self.inimigos:
-                    if tiro.posicao_x >= inimigo.posicao_x and 100<= tiro.posicao_y<=110:
+                    if tiro.posicao_x >= inimigo.posicao_x and tiro.posicao_x < inimigo.posicao_x+8 and inimigo.posicao_y<= tiro.posicao_y<= inimigo.posicao_y+8:
                         inimigo.life -= self.poder_de_ataque
                         if inimigo.life <= 0:
-
-        #GOLD QUE OS INIMIGOS DÃO
-                            if inimigo.tipo_de_inimigo == 0:
+                            
+        #GOLD DOS INIMIGOS
+                            if inimigo.tipo_de_inimigo == 0 and inimigo.pode_dar_ouro:
                                 self.gold_total += 10
-                            elif inimigo.tipo_de_inimigo == 1:
+                                inimigo.pode_dar_ouro = False
+                            elif inimigo.tipo_de_inimigo == 1 and inimigo.pode_dar_ouro:
                                 self.gold_total += 25
-                            elif inimigo.tipo_de_inimigo == 2:
+                                inimigo.pode_dar_ouro = False
+                            elif inimigo.tipo_de_inimigo == 2 and inimigo.pode_dar_ouro:
                                 self.gold_total += 50
-                            elif inimigo.tipo_de_inimigo == 3:
+                                inimigo.pode_dar_ouro = False
+                            elif inimigo.tipo_de_inimigo == 3 and inimigo.pode_dar_ouro:
                                 self.gold_total += 100
-                            self.inimigos.remove(inimigo)
-                            self.gold.append(Ouro(1, inimigo.posicao_x, inimigo.posicao_y-5))
+                                inimigo.pode_dar_ouro = False
+                            inimigo.vivo = False
 
-                        try:
-                            self.tiros.remove(tiro)
-                        except:
-                            None
-
-        #OURO SOBRE OS INIMIGOS
-            for ouro in self.gold:
-                ouro.update()
-                if self.gold_time <=0:
-                    self.gold.remove(ouro)        
+                        if inimigo.vivo:
+                            try:
+                                self.tiros.remove(tiro)
+                            except:
+                                None
 
         #MOVER E GERAR ESTRELAS
             for i in range(11):
@@ -579,7 +640,7 @@ class Jogo:
                 self.tipo_de_projétil = 0
                 self.velocidade = 1
                 self.poder_de_ataque = 1
-                self.gold_total = 0
+                self.gold_total = 100
                 for vida in  self.vidas:
                     vida.cheio = True
 
@@ -593,9 +654,10 @@ class Jogo:
             pyxel.text(122,50,"The Last Castle",8)
             pyxel.text(10,95,"Pressione 'enter' para jogar", 7)
             pyxel.text(10,105,"Pressione 'Q' para sair", 7)
-            Castelo(2,30,40).draw()
+            Castelo(0,30,40).draw()
 
     #QUANDO O JOGO INICIAR
+
         if self.estado_de_jogo == jogando:
             pyxel.cls(1)
 
@@ -664,7 +726,6 @@ class Jogo:
 
 
         #VIDAS
-            offset_coracoes = (0, 0)
             for i, vida in enumerate(self.vidas):
                 vida.draw(i*13, 0)
             
