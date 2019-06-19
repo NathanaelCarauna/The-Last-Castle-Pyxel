@@ -1,5 +1,6 @@
 import pyxel
 import random
+import pygame
 
 #MODOS DE JOGO:
 inicio_de_jogo = 0
@@ -235,6 +236,10 @@ class Tiros:
             pyxel.blt(self.posicao_x,self.posicao_y,0,64,0,2,3,7)
         if 3 <= self.tipo_de_projetil <= 4:
             pyxel.blt(self.posicao_x,self.posicao_y,0,64,4,2,3,7)
+        if 4 <= self.tipo_de_projetil <= 5:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,73,5,3,3,7)
+        if 5 <= self.tipo_de_projetil <= 6:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,73,3,3,3,7)
 
 #INIMIGOS
 class Inimigo:
@@ -362,7 +367,7 @@ class Jogo:
         self.vida_preço = 150
 
     #GOLD
-        self.gold_total = 5000
+        self.gold_total = 50000000
         self.gold = []
 
     #LISTA DE VIDA
@@ -675,6 +680,7 @@ class Jogo:
                 self.velocidade = 1
                 self.poder_de_ataque = 1
                 self.gold_total = 50
+                self.castelo[0].tipo_de_castelo = 0
                 for vida in  self.vidas:
                     vida.cheio = True
 
