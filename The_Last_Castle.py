@@ -191,8 +191,26 @@ class Castelo:
     def draw(self):
         if self.tipo_de_castelo == 0:
             pyxel.blt(self.posicao_x, self.posicao_y,0,0,48,40,32,7)
+        if self.tipo_de_castelo == 1:
+            pyxel.blt(self.posicao_x, self.posicao_y,0,64,96,40,32,7)
+
         if self.tipo_de_castelo == 2:
-            pyxel.blt(self.posicao_x, self.posicao_y,0,96,96,40,32,7)
+            pyxel.blt(self.posicao_x, self.posicao_y,0,104,96,40,32,7)
+
+#ARMA
+class Arma:
+    def __init__(self, x = 30, y = 105):
+        self.posicao_x = x
+        self.posicao_y = y
+        self.arma = 1
+
+    def draw(self):
+        if self.arma == 1:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,80,64,8,8,7)
+        elif self.arma == 2:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,80,72,8,8,7)
+        elif self.arma == 0:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,88,72,8,8,7)
 
 #TIROS
 class Tiros:
@@ -344,7 +362,7 @@ class Jogo:
         self.vida_preço = 150
 
     #GOLD
-        self.gold_total = 1000000000
+        self.gold_total = 5000
         self.gold = []
 
     #LISTA DE VIDA
@@ -353,9 +371,9 @@ class Jogo:
     #LISTA DE INIMIGOS
         self.inimigos = []
 
-    #LISTA DE CASTELO
+    #LISTA DE CASTELO E ARMA
         self.castelo = [Castelo(0,15,83)]
-
+        self.armas = [Arma(40,103)]
     #LISTA DE TIROS
         self.tiros = []
         self.poder_de_ataque = 1
@@ -503,13 +521,13 @@ class Jogo:
                     
                 #WAVE 2
             if self.contador_para_waves> 500 and self.contador_para_waves<508:
-                self.inimigos.append(Inimigo(1))
+                self.inimigos.append(Inimigo(0))
 
                 #WAVE 3
             if self.contador_para_waves>900 and self.contador_para_waves<913:
-                self.inimigos.append(Inimigo(2))
+                self.inimigos.append(Inimigo(0))
             if self.contador_para_waves>910 and self.contador_para_waves<914:
-                self.inimigos.append(Inimigo(1))
+                self.inimigos.append(Inimigo(0))
 
                 #WAVE 4
             if self.contador_para_waves>1300 and self.contador_para_waves<1315:
@@ -531,7 +549,14 @@ class Jogo:
             if self.contador_para_waves>2720 and self.contador_para_waves<2721:
                 self.inimigos.append(Inimigo(1))
             if self.contador_para_waves>2735 and self.contador_para_waves<2740:
+                self.inimigos.append(Inimigo(0))
+
+                #WAVE 8
+            if 3400 <self.contador_para_waves<3410:
                 self.inimigos.append(Inimigo(2))
+
+            
+
 
         #MOVER INIMIGO
             for inimigo in self.inimigos:
@@ -547,9 +572,18 @@ class Jogo:
             if self.indice_de_vidas == (len(self.vidas)*-1):
                 self.estado_de_jogo = game_over
 
+        #MUDAR SPRITE DA ARMA
+            for arma in self.armas:
+                if pyxel.mouse_y <103:
+                    arma.arma = 2
+                elif pyxel.mouse_y >103:
+                    arma.arma = 0
+                else:
+                    arma.arma = 1
+                
         #GERAR TIRO
             if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and pyxel.mouse_y <= 120:
-                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,88))
+                self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,105))
 
         #MOVER PROJÉTIL
             for tiro in self.tiros:
@@ -640,7 +674,7 @@ class Jogo:
                 self.tipo_de_projétil = 0
                 self.velocidade = 1
                 self.poder_de_ataque = 1
-                self.gold_total = 100
+                self.gold_total = 50
                 for vida in  self.vidas:
                     vida.cheio = True
 
@@ -709,6 +743,10 @@ class Jogo:
         #TIROS
             for tiro in self.tiros:
                 tiro.draw()
+
+        #ARMA
+            for arma in self.armas:
+                arma.draw()
 
         #ARVORES
             for arvore in self.arvores:
