@@ -1,15 +1,35 @@
 import pyxel
 import random
-import pygame
+#import pygame
 
 #MODOS DE JOGO:
 inicio_de_jogo = 0
+
 jogando = 1
 game_over = 2
+win = 3
 
 def gold_de_upgrade(x):
             novo_valor = x+(x/4)
             return(novo_valor)
+def reset(self):
+    self.indice_de_vidas = 0
+    self.vidas = [Vida()]
+    self.contador_para_waves = 0
+    self.inimigos = []
+    self.tiros = []
+    self.tipo_de_projétil = 0
+    self.velocidade = 1
+    self.poder_de_ataque = 1
+    self.gold_total = 50
+    self.fire_rate = 37
+    self.dano_preço = 30
+    self.qtd_tiros_preço = 30
+    self.velocidade_preço = 30
+    self.vida_preço = 150
+    self.castelo[0].tipo_de_castelo = 0
+    for vida in  self.vidas:
+        vida.cheio = True
 
 #UPGRADES
 class Upgrades:
@@ -190,12 +210,13 @@ class Castelo:
         self.posicao_y = y
 
     def draw(self):
-        if self.tipo_de_castelo == 0:
+        if 0 <= self.tipo_de_castelo <3:
             pyxel.blt(self.posicao_x, self.posicao_y,0,0,48,40,32,7)
-        if self.tipo_de_castelo == 1:
+
+        if 3<= self.tipo_de_castelo < 5:
             pyxel.blt(self.posicao_x, self.posicao_y,0,64,96,40,32,7)
 
-        if self.tipo_de_castelo == 2:
+        if self.tipo_de_castelo >= 5:
             pyxel.blt(self.posicao_x, self.posicao_y,0,104,96,40,32,7)
 
 #ARMA
@@ -246,19 +267,22 @@ class Inimigo:
     def __init__(self,ti, x=255):
         self.tipo_de_inimigo = ti
         self.posicao_x = x
-        self.posicao_y = random.randint(96,109)
-        self.velocidade = -1*(random.randint(1,8)/10)
+        if self.tipo_de_inimigo == 3:
+            self.posicao_y = random.randint(86,96)
+        else:
+            self.posicao_y = random.randint(96,106)
+        self.velocidade = -1*(random.randint(1,6)/10)
         self.animar = True
         self.vivo = True
         self.pode_dar_ouro = True
         if self.tipo_de_inimigo == 0:
-            self.life = 6
+            self.life = 3
         if self.tipo_de_inimigo == 1:
-            self.life = 20
+            self.life = 10
         elif self.tipo_de_inimigo == 2:
-            self.life = 50
+            self.life = 25
         elif self.tipo_de_inimigo == 3:
-            self.life = 200
+            self.life = 80
         
 
     def update(self):
@@ -330,16 +354,29 @@ class Inimigo:
                     pyxel.blt(self.posicao_x,self.posicao_y,0,136,32,16,16,7)
 
 class Chefao:
-    def __init__(self, x, y):
+    def __init__(self,ti, x, y):
         self.posicao_x = x
         self.posicao_y = y
-        self.velocidade = -0.5
-    
+        self.velocidade = -0.1
+        self.tipo_de_inimigo = ti
+        self.vivo = True
+        self.animar = True
+        self.life = 2000
+
     def update(self):
-        self.posicao_x += self.velocidade
+        if self.vivo:
+            self.posicao_x += self.velocidade
 
     def draw(self):
-        pyxel.blt(self.posicao_x,self.posicao_y,0,40,74,16,22,7)
+        if self.tipo_de_inimigo == 0:
+            pyxel.blt(self.posicao_x,self.posicao_y,0,40,74,16,22,7)
+
+        if self.tipo_de_inimigo == 4:
+            if self.vivo:
+                if self.animar == True:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,152,4,36,67,7)
+                else:
+                    pyxel.blt(self.posicao_x,self.posicao_y,0,200,4,36,67,7)
 
 #JOGO
 class Jogo:
@@ -347,27 +384,29 @@ class Jogo:
     def __init__(self):
 
     #UPGRADES
-        self.upgrades = [Upgrades(0,False,51,122), Upgrades(1,False,71,122), Upgrades(3,False,91,122), Upgrades(2,False,111,122)]
+        self.upgrades = [Upgrades(0,False,51+120,122), Upgrades(1,False,71+120,122), Upgrades(3,False,91+120,122), Upgrades(2,False,111+120,122)]
         self.vida_pode_evoluir = False
         self.dano_pode_evoluir = False
         self.velocidade_pode_evoluir = False
         self.quantidade_de_tiros_pode_evoluir = False
-        #self.bonus_de_ouro_pode_evoluir = False
-        #self.tiro_perfurador_pode_evoluir = False
+        self.fire_rate = 37
+        self.atirou = False
+
 
     #CONTADORES
         self.contador_para_waves = 0
         self.indice_de_vidas = 0
         self.relampago_time = 10
+        self.tick_fire_rate = self.fire_rate
 
     #PREÇOS DO UPGRADE
-        self.dano_preço = 90
-        self.velocidade_preço = 75
-        self.qtd_tiros = 100
+        self.dano_preço = 30
+        self.velocidade_preço = 30
+        self.qtd_tiros_preço = 30
         self.vida_preço = 150
 
     #GOLD
-        self.gold_total = 50000000
+        self.gold_total = 50000
         self.gold = []
 
     #LISTA DE VIDA
@@ -437,9 +476,13 @@ class Jogo:
             pyxel.quit()
 
         if self.estado_de_jogo == inicio_de_jogo:
+            pyxel.stop(1)
+            
         #PLAY
             if pyxel.btn(pyxel.KEY_ENTER):
                 self.estado_de_jogo = jogando
+                pyxel.sound(1).speed = 90
+                pyxel.play(1,1, loop = True)
 
     #ATUALIZAÇÃO QUANDO O JOGO INICIA
         elif self.estado_de_jogo == jogando:
@@ -477,8 +520,7 @@ class Jogo:
 
         #ATIVADOR ÍCONE DOS UPGRADES COM BASE NO OURO
             if self.gold_total >= self.dano_preço:
-                self.dano_pode_evoluir = True
-                
+                self.dano_pode_evoluir = True 
             else:
                 self.dano_pode_evoluir = False
                 
@@ -487,14 +529,19 @@ class Jogo:
             else:
                 self.velocidade_pode_evoluir = False
 
-            if self.gold_total >= 150:
+            if self.gold_total >= self.qtd_tiros_preço:
+                self.quantidade_de_tiros_pode_evoluir = True
+            else:
+                self.quantidade_de_tiros_pode_evoluir = False
+
+            if self.gold_total >= self.vida_preço:
                 self.vida_pode_evoluir = True
             else:
                 self.vida_pode_evoluir = False
 
         #COMPRAR UPGRADES:
             #EVOLUIR PODER DE ATAQUE
-            if 51<=pyxel.mouse_x <=67 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.dano_pode_evoluir:
+            if 51+120<=pyxel.mouse_x <=67+120 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.dano_pode_evoluir:
                 self.gold_total -= int(self.dano_preço)
                 self.poder_de_ataque += 1
                 self.dano_pode_evoluir = False
@@ -502,14 +549,22 @@ class Jogo:
                 self.dano_preço = gold_de_upgrade(self.dano_preço)
 
             #EVOLUIR VELOCIDADE DE ATAQUE
-            if 71<= pyxel.mouse_x <= 87  and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.velocidade_pode_evoluir:
+            if 71+120<= pyxel.mouse_x <= 87+120  and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.velocidade_pode_evoluir:
                 self.gold_total -= int(self.velocidade_preço)
                 self.velocidade +=0.2
                 self.velocidade_pode_evoluir = False
                 self.velocidade_preço = gold_de_upgrade(self.velocidade_preço)
+            
+            #EVOLUIR FIRE_RATE
+            if 91+120<= pyxel.mouse_x <= 107+120  and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.quantidade_de_tiros_pode_evoluir:
+                self.gold_total -= int(self.qtd_tiros_preço)
+                self.fire_rate -= 3
+                self.tick_fire_rate = self.fire_rate
+                self.quantidade_de_tiros_pode_evoluir = False
+                self.qtd_tiros_preço = gold_de_upgrade(self.qtd_tiros_preço)
 
             #EVOLUIR VIDA
-            if 111<=pyxel.mouse_x <= 127 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.vida_pode_evoluir:
+            if 111+120<=pyxel.mouse_x <= 127+120 and 122<=pyxel.mouse_y<=138 and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.vida_pode_evoluir:
                 self.gold_total-= int(self.vida_preço)
                 self.vidas.append(Vida())
                 self.vida_pode_evoluir = False
@@ -523,45 +578,81 @@ class Jogo:
                 #WAVE 1
             if self.contador_para_waves> 100 and self.contador_para_waves<103:
                     self.inimigos.append(Inimigo(0))
+                    #self.inimigos.append(Chefao(4,255,40))
                     
                 #WAVE 2
             if self.contador_para_waves> 500 and self.contador_para_waves<508:
                 self.inimigos.append(Inimigo(0))
+                pyxel.sound(1).speed = 80
 
                 #WAVE 3
-            if self.contador_para_waves>900 and self.contador_para_waves<913:
+            if self.contador_para_waves>1100 and self.contador_para_waves<1113:
                 self.inimigos.append(Inimigo(0))
-            if self.contador_para_waves>910 and self.contador_para_waves<914:
+            if self.contador_para_waves>1110 and self.contador_para_waves<1114:
                 self.inimigos.append(Inimigo(0))
+                pyxel.sound(1).speed = 70
 
                 #WAVE 4
-            if self.contador_para_waves>1300 and self.contador_para_waves<1315:
+            if self.contador_para_waves>1800 and self.contador_para_waves<1815:
                 self.inimigos.append(Inimigo(0))
-            if self.contador_para_waves>1310 and self.contador_para_waves<1316:
+            if self.contador_para_waves>1810 and self.contador_para_waves<1816:
                 self.inimigos.append(Inimigo(1))
+                pyxel.sound(1).speed = 60
 
                 #WAVE 5
-            if self.contador_para_waves>1700 and self.contador_para_waves<1715:
+            if self.contador_para_waves>2600 and self.contador_para_waves<2615:
                 self.inimigos.append(Inimigo(1))
+                pyxel.sound(1).speed = 50
 
                 #WAVE 6
-            if self.contador_para_waves>2100 and self.contador_para_waves<2120:
+            if self.contador_para_waves>3300 and self.contador_para_waves<3320:
                 self.inimigos.append(Inimigo(1))
-            
+                
+
                 #WAVE 7
-            if self.contador_para_waves>2700 and self.contador_para_waves<2731:
+            if self.contador_para_waves>3900 and self.contador_para_waves<3931:
+                pyxel.sound(1).speed = 45
                 self.inimigos.append(Inimigo(0))
-            if self.contador_para_waves>2720 and self.contador_para_waves<2721:
+            if self.contador_para_waves>3920 and self.contador_para_waves<3921:
                 self.inimigos.append(Inimigo(1))
-            if self.contador_para_waves>2735 and self.contador_para_waves<2740:
+            if self.contador_para_waves>3935 and self.contador_para_waves<3940:
                 self.inimigos.append(Inimigo(0))
 
                 #WAVE 8
-            if 3400 <self.contador_para_waves<3410:
+            if 4500 <self.contador_para_waves<4510:
                 self.inimigos.append(Inimigo(2))
+                
 
+                #WAVE 9
+            if 5200 <self.contador_para_waves<5230:
+                pyxel.sound(1).speed = 30
+                self.inimigos.append(Inimigo(0))
+            if 5230 <self.contador_para_waves<5250:
+                self.inimigos.append(Inimigo(1))
+            if 5250 <self.contador_para_waves<5265:
+                self.inimigos.append(Inimigo(2))
             
+                #WAVE 10
+            if 5800 <self.contador_para_waves<5802:
+                self.inimigos.append(Inimigo(3))
+            
+                #WAVE 11
+            if 6500 <self.contador_para_waves<6530:
+                pyxel.sound(1).speed = 25
+                self.inimigos.append(Inimigo(2))
+            if 6524 <self.contador_para_waves<6530:
+                self.inimigos.append(Inimigo(3))
+                
 
+                #WAVE 12
+            if 7210 <self.contador_para_waves<7250:
+                self.inimigos.append(Inimigo(2))
+            if 7239 <self.contador_para_waves<7250:
+                self.inimigos.append(Inimigo(3))
+
+                #CHEFÃO
+            if 8000<self.contador_para_waves<8002:
+                self.inimigos.append(Chefao(4,255,40))
 
         #MOVER INIMIGO
             for inimigo in self.inimigos:
@@ -576,6 +667,7 @@ class Jogo:
         #VERIFICADOR DE VIDA DO CASTELO
             if self.indice_de_vidas == (len(self.vidas)*-1):
                 self.estado_de_jogo = game_over
+                pyxel.stop(1)
 
         #MUDAR SPRITE DA ARMA
             for arma in self.armas:
@@ -585,10 +677,20 @@ class Jogo:
                     arma.arma = 0
                 else:
                     arma.arma = 1
-                
+            
         #GERAR TIRO
-            if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and pyxel.mouse_y <= 120:
+            
+            if pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON) and self.tick_fire_rate == self.fire_rate and self.atirou == False:
+                #pyxel.play(2,4)
                 self.tiros.append(Tiros(self.tipo_de_projétil,self.velocidade,40,105))
+                self.atirou = True
+
+            if self.atirou:
+                self.tick_fire_rate -= 1
+
+            if self.tick_fire_rate <=0:
+                self.tick_fire_rate = self.fire_rate
+                self.atirou = False
 
         #MOVER PROJÉTIL
             for tiro in self.tiros:
@@ -598,31 +700,72 @@ class Jogo:
                     
         #DANO AOS INIMIGOS
                 for inimigo in self.inimigos:
-                    if tiro.posicao_x >= inimigo.posicao_x and tiro.posicao_x < inimigo.posicao_x+8 and inimigo.posicao_y<= tiro.posicao_y<= inimigo.posicao_y+8:
-                        inimigo.life -= self.poder_de_ataque
-                        if inimigo.life <= 0:
-                            
-        #GOLD DOS INIMIGOS
-                            if inimigo.tipo_de_inimigo == 0 and inimigo.pode_dar_ouro:
-                                self.gold_total += 10
-                                inimigo.pode_dar_ouro = False
-                            elif inimigo.tipo_de_inimigo == 1 and inimigo.pode_dar_ouro:
-                                self.gold_total += 25
-                                inimigo.pode_dar_ouro = False
-                            elif inimigo.tipo_de_inimigo == 2 and inimigo.pode_dar_ouro:
-                                self.gold_total += 50
-                                inimigo.pode_dar_ouro = False
-                            elif inimigo.tipo_de_inimigo == 3 and inimigo.pode_dar_ouro:
-                                self.gold_total += 100
-                                inimigo.pode_dar_ouro = False
-                            inimigo.vivo = False
+                    if inimigo.vivo:
+                        if inimigo.tipo_de_inimigo == 4:
+                            if tiro.posicao_x >= inimigo.posicao_x + 16 and tiro.posicao_x < inimigo.posicao_x + 50 and inimigo.posicao_y <= tiro.posicao_y<= inimigo.posicao_y+67:
+                                inimigo.life -= self.poder_de_ataque
+                                try:
+                                    self.tiros.remove(tiro)
+                                except:
+                                    None
 
-                        if inimigo.vivo:
-                            try:
-                                self.tiros.remove(tiro)
-                            except:
-                                None
+                                if inimigo.life <= 0:
+                                    self.estado_de_jogo = win
+                                    pyxel.stop(1)
+                                    pyxel.play(1,5, loop= True)
 
+                        if inimigo.tipo_de_inimigo == 3:
+                            if tiro.posicao_x >= inimigo.posicao_x + 4 and tiro.posicao_x < inimigo.posicao_x + 16 and inimigo.posicao_y <= tiro.posicao_y<= inimigo.posicao_y+16:
+                                inimigo.life -= self.poder_de_ataque
+                                if inimigo.life <= 0:
+                                    if inimigo.pode_dar_ouro:
+                                        self.gold_total+=100
+                                        inimigo.pode_dar_ouro = False
+                                    inimigo.vivo = False
+                                try:
+                                    self.tiros.remove(tiro)
+                                except:
+                                    None
+
+                        if inimigo.tipo_de_inimigo == 2:
+                            if tiro.posicao_x >= inimigo.posicao_x + 2 and tiro.posicao_x < inimigo.posicao_x + 6 and inimigo.posicao_y <= tiro.posicao_y<= inimigo.posicao_y+8:
+                                inimigo.life -= self.poder_de_ataque
+                                if inimigo.life <= 0:
+                                    if inimigo.pode_dar_ouro:
+                                        self.gold_total+=50
+                                        inimigo.pode_dar_ouro = False
+                                    inimigo.vivo = False
+                                try:
+                                    self.tiros.remove(tiro)
+                                except:
+                                    None
+
+                        if inimigo.tipo_de_inimigo == 1:
+                            if tiro.posicao_x >= inimigo.posicao_x + 2 and tiro.posicao_x < inimigo.posicao_x + 6 and inimigo.posicao_y <= tiro.posicao_y<= inimigo.posicao_y+8:
+                                inimigo.life -= self.poder_de_ataque
+                                if inimigo.life <= 0:
+                                    if inimigo.pode_dar_ouro:
+                                        self.gold_total+=25
+                                        inimigo.pode_dar_ouro = False
+                                    inimigo.vivo = False
+                                try:
+                                    self.tiros.remove(tiro)
+                                except:
+                                    None
+
+                        if inimigo.tipo_de_inimigo == 0:
+                            if tiro.posicao_x >= inimigo.posicao_x + 2 and tiro.posicao_x < inimigo.posicao_x + 6 and inimigo.posicao_y <= tiro.posicao_y<= inimigo.posicao_y+8:
+                                inimigo.life -= self.poder_de_ataque
+                                if inimigo.life <= 0:
+                                    if inimigo.pode_dar_ouro:
+                                        self.gold_total+= 15
+                                        inimigo.pode_dar_ouro = False
+                                    inimigo.vivo = False
+                                try:
+                                    self.tiros.remove(tiro)
+                                except:
+                                    None        
+                              
         #MOVER E GERAR ESTRELAS
             for i in range(11):
                 if i == 10:
@@ -671,19 +814,14 @@ class Jogo:
         if self.estado_de_jogo == game_over:
             if pyxel.btnr(pyxel.KEY_ENTER):
                 self.estado_de_jogo = inicio_de_jogo
-                self.indice_de_vidas = 0
-                self.vidas = [Vida()]
-                self.contador_para_waves = 0
-                self.inimigos = []
-                self.tiros = []
-                self.tipo_de_projétil = 0
-                self.velocidade = 1
-                self.poder_de_ataque = 1
-                self.gold_total = 50
-                self.castelo[0].tipo_de_castelo = 0
-                for vida in  self.vidas:
-                    vida.cheio = True
+                reset(self)
 
+    #VITÓRIA
+        if self.estado_de_jogo == win:
+            if pyxel.btnr(pyxel.KEY_ENTER):
+                self.estado_de_jogo = inicio_de_jogo
+                reset(self)
+                
 #DESENHAR             
     def draw(self):
     #TIRAR RASTRO
@@ -719,7 +857,8 @@ class Jogo:
                 montanha.draw()
             
         #CHEFAO NA MONTANHA
-            Chefao(128,18).draw()
+            
+            Chefao(0,128,18).draw()
 
         #RELAMPAGOS
             for Relampago in self.relampagos:
@@ -761,10 +900,10 @@ class Jogo:
             Arvores(220,109).draw(1)
 
         #MENU DE UPGRADE
-            pyxel.rect(0,119,255,140,8)        #BORDA VERLMELHA
-            pyxel.rect(2,121,131,138,0)        #RETANGULO PRETO ESQUERDO
-            pyxel.rect(133,120,255,140,0)      #RETANGULO PRETO DIREITO
-            pyxel.text(5,127,"UPGRADES",9)
+            pyxel.rect(0,119,255,140,0)        #BORDA VERLMELHA
+            pyxel.rect(2+120,121,131,138,0)        #RETANGULO PRETO ESQUERDO
+            pyxel.rect(133+120,120,255,140,0)      #RETANGULO PRETO DIREITO
+            pyxel.text(5+120,127,"UPGRADES",9)
             for upgrade in self.upgrades:
                 upgrade.draw()
 
@@ -780,9 +919,19 @@ class Jogo:
     #TELA DE GAME OVER
         if self.estado_de_jogo == game_over:
             pyxel.cls(0)
-            pyxel.text(100,55,"O CASTELO FOI DESTRUIDO",8)
-            pyxel.text(100,90,"Pressione 'enter'",7)
-            pyxel.text(100,100,"'Q' para sair", 7)
+            Castelo(0,30,40).draw()
+            pyxel.text(75,55,"O CASTELO FOI DESTRUIDO, FIM DE JOGO!",8)
+            pyxel.text(20,90,"Pressione 'enter' para voltar ao menu do jogo",7)
+            pyxel.text(20,100,"Pressione 'Q' para sair", 7)
+    
+    #TELA DE VITÓRIA
+        if self.estado_de_jogo == win:
+            pyxel.cls(7)
+            Castelo(5,100,20).draw()
+            pyxel.text(5,55,"VOCE CONSEGUIU SOBREVIVER E DERROTOU O EXÉRCITO MALIGNO!",random.randint(0,16))
+            pyxel.text(30,70,"VOCE SALVOU A HUMANIDADE!", random.randint(0,16))
+            pyxel.text(60,90,"Pressione 'enter' para voltar ao menu do jogo",0)
+            pyxel.text(100,100,"Pressione 'Q' para sair", 0)
             
 
 Jogo()
